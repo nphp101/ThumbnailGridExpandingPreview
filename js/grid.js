@@ -197,7 +197,12 @@ var Grid = (function() {
 			easing : 'ease',
 			showVisitButton : true
 		};
-
+    
+  _addClickEvent = null;
+  function addClickEvent(addClickEvt){
+    _addClickEvent = addClickEvt;
+  }
+  
 	function init( config ) {
 		
 		// the settings..
@@ -278,8 +283,11 @@ var Grid = (function() {
 		} ).children( 'a' ).on( 'click', function(e) {
 
 			var $item = $( this ).parent();
-			// check if item already opened
-			current === $item.index() ? hidePreview() : showPreview( $item );
+      _addClickEvent($item, function($item){
+        // check if item already opened
+        current === $item.index() ? hidePreview() : showPreview( $item );
+        return false;
+      });
 			return false;
 
 		} );
@@ -354,7 +362,9 @@ var Grid = (function() {
 			this.$loading = $( '<div class="og-loading"></div>' );
 			this.$fullimage = $( '<div class="og-fullimg"></div>' ).append( this.$loading );
 			this.$closePreview = $( '<span class="og-close"></span>' );
-			this.$previewInner = $( '<div class="og-expander-inner"></div>' ).append( this.$closePreview, this.$fullimage, this.$details );
+			//this.$previewInner = $( '<div class="og-expander-inner"></div>' ).append( this.$closePreview, this.$fullimage, this.$details );
+      this.$dataHolder = $( '<p></p>' );
+      this.$previewInner = $( '<div class="og-expander-inner"></div>' ).append( this.$closePreview, this.$dataHolder);
 			this.$previewEl = $( '<div class="og-expander"></div>' ).append( this.$previewInner );
 			// append preview element to the item
 			this.$item.append( this.getEl() );
@@ -387,9 +397,10 @@ var Grid = (function() {
 					href : $itemEl.attr( 'href' ),
 					largesrc : $itemEl.data( 'largesrc' ),
 					title : $itemEl.data( 'title' ),
-					description : $itemEl.data( 'description' )
+					description : $itemEl.data( 'description' ),
+          data_html : $itemEl.data( 'html' )
 				};
-
+      this.$dataHolder.html(eldata.data_html);
 			this.$title.html( eldata.title );
 			this.$description.html( eldata.description );
 			if (settings.showVisitButton === true) {
@@ -516,7 +527,8 @@ var Grid = (function() {
 
 	return { 
 		init : init,
-		addItems : addItems
+		addItems : addItems,
+    addClickEvent: addClickEvent
 	};
 
 })();
